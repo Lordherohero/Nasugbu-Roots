@@ -16,19 +16,44 @@ class TouristSpot(
     val availability: String = "",
     val imageUrl: String = "",
     val approved: Boolean = true
-)
+) {
+    fun displayInfo()
+    fun displayLocation()
+    fun checkAvailability()
 
 class GuideProfile(
     val bio: String = "",
     val languages: String = "",
     val ratePerDay: Double = 0.0
-)
+) {
+    fun displayProfile()
+    fun isAvailable(): Boolean
+    fun calculateTourCost(days: Int): Double
+    fun displayLanguages()
 
 class Booking(
+    val bookingId: String = "",
     val spotId: String = "",
     val travelerId: String = "",
     val guideId: String = "",
+    val date: String = "",
+    val time: String = "",
+    val duration: Int = 0,
     val status: String = ""
-)
+) {
+    fun confirmBooking()
+    fun cancelBooking()
+    fun updateStatus(newStatus: String)
+    fun displayBooking()
 // functions planed to be added  (feel free to add any ideas po)
 // displayLocation(), showStatus(), verifyUser(), markLoaction(), findLocation()....
+
+class Review(
+    val reviewId: String = "",
+    val userId: String = "",
+    val spotId: String = "",
+    val guideId: String = "",
+    val rating: Double = 0.0,
+    val comment: String = "",
+    val date: String = ""
+)
