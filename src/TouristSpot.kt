@@ -1,13 +1,13 @@
 abstract class TouristSpot(
-    protected var placeName: String = "",
-    protected var description: String = "",
-    private val latitude: Double = 0.0,
-    private val longitude: Double = 0.0,
-    private val ownerId: Int = 0,
-    protected var allowsGuides: Boolean = true,
-    protected var availability: Boolean = true,
-    protected var imageUrl: String = "",
-    private val verified: Boolean = true
+    protected var placeName: String,
+    protected var description: String,
+    private val latitude: Double,
+    private val longitude: Double,
+    private val ownerId: Int,
+    protected var allowsGuides: Boolean,
+    protected var availability: Boolean,
+    protected var imageUrl: String,
+    private val verified: Boolean
 ){
     abstract fun setPlaceName(): String
     abstract fun setDescription(): String
