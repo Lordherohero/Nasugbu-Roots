@@ -17,6 +17,8 @@ abstract class AppUser(
     abstract fun setUserLanguage(): String
     abstract fun SetUserRatePerHour(): Double
 
+
+
     fun getUserName() {
         println("User Name: $userName")
     }

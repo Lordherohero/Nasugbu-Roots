@@ -11,6 +11,11 @@ abstract class Booking(
     abstract fun setStatus(): String
     abstract fun setPlaceRate(): Double
 
+    // fun confirmBooking()
+    // fun cancelBooking()
+    // fun updateStatus(newStatus: String)
+    // fun displayBooking()
+
     fun getPlaceId() {
         println("$placeId -> $placeRate")
     }
