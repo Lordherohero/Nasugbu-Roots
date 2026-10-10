@@ -1,12 +1,12 @@
 abstract class AppUser(
-    protected var userName: String = "",
-    private val userId: Int = 0,
-    protected var email: String = "",
-    protected val role: String = "",
-    private val verified: Boolean = true,
-    protected var bio: String = "",
-    private val languages: String = "",
-    protected var ratePerHour: Double = 0.0
+    protected var userName: String,
+    private val userId: Int,
+    protected var email: String,
+    protected val role: String,
+    private val verified: Boolean,
+    protected var bio: String,
+    private val languages: String,
+    protected var ratePerHour: Double
 ) {
     abstract fun setUserName(): String
     abstract fun setUserId(): Int

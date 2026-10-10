@@ -1,9 +1,9 @@
 abstract class Booking(
-    private val placeId: Int = 0,
-    private val travelerId: Int = 0,
-    private val guideId: Int = 0,
-    protected var status: String = "",
-    protected var placeRate: Double = 0.0
+    private val placeId: Int,
+    private val travelerId: Int,
+    private val guideId: Int,
+    protected var status: String,
+    protected var placeRate: Double
 ){
     abstract fun setPlaceId(): Int
     abstract fun setTravelerId(): Int
