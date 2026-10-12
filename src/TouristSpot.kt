@@ -44,7 +44,6 @@ open class TouristSpot(
         this.imageUrl = imageUrl
         println("Image URL updated to: $imageUrl")
     }
-    // Getters
     fun getPlaceName() {
         println("Place Name: $placeName")
     }

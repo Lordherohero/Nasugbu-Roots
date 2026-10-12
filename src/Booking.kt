@@ -15,7 +15,6 @@ open class Booking(
     private fun isValidStatus(status: String): Boolean {
         return status == "Pending" || status == "Confirmed" || status == "Cancelled"
     }
-    // Setters (only for the properties that stay var)
     fun setStatus(status: String) {
         require(isValidStatus(status)) { "Status must be Pending, Confirmed, or Cancelled" }
         this.status = status
@@ -26,7 +25,6 @@ open class Booking(
         this.placeRate = placeRate
         println("Place rate updated to: $placeRate")
     }
-    // Booking actions
     fun confirmBooking() {
         if (status == "Cancelled") {
             println("Cannot confirm a cancelled booking")
@@ -59,7 +57,6 @@ open class Booking(
     fun getPlaceRate() {
         println("Place Rate: $placeRate")
     }
-
     class Review(
         val reviewId: String = "",
         val userId: Int = 0,
