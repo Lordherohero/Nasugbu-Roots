@@ -1,35 +1,63 @@
-abstract class Booking(
+open class Booking(
     private val placeId: Int,
     private val travelerId: Int,
     private val guideId: Int,
-    protected var status: String,
-    protected var placeRate: Double
-){
-    abstract fun setPlaceId(): Int
-    abstract fun setTravelerId(): Int
-    abstract fun setGuideId(): Int
-    abstract fun setStatus(): String
-    abstract fun setPlaceRate(): Double
-
-    // fun confirmBooking()
-    // fun cancelBooking()
-    // fun updateStatus(newStatus: String)
-    // fun displayBooking()
-
+    private var status: String,
+    private var placeRate: Double
+) {
+    init {
+        require(placeId > 0) { "Place ID must be positive" }
+        require(travelerId > 0) { "Traveler ID must be positive" }
+        require(guideId > 0) { "Guide ID must be positive" }
+        require(isValidStatus(status)) { "Status must be Pending, Confirmed, or Cancelled" }
+        require(placeRate >= 0.0) { "Place rate cannot be negative" }
+    }
+    private fun isValidStatus(status: String): Boolean {
+        return status == "Pending" || status == "Confirmed" || status == "Cancelled"
+    }
+    // Setters (only for the properties that stay var)
+    fun setStatus(status: String) {
+        require(isValidStatus(status)) { "Status must be Pending, Confirmed, or Cancelled" }
+        this.status = status
+        println("Booking status updated to: $status")
+    }
+    fun setPlaceRate(placeRate: Double) {
+        require(placeRate >= 0.0) { "Place rate cannot be negative" }
+        this.placeRate = placeRate
+        println("Place rate updated to: $placeRate")
+    }
+    // Booking actions
+    fun confirmBooking() {
+        if (status == "Cancelled") {
+            println("Cannot confirm a cancelled booking")
+            return
+        }
+        setStatus("Confirmed")
+    }
+    fun cancelBooking() {
+        setStatus("Cancelled")
+    }
+    fun displayBooking() {
+        println("Place ID: $placeId")
+        println("Traveler ID: $travelerId")
+        println("Guide ID: $guideId")
+        println("Status: $status")
+        println("Place Rate: $placeRate")
+    }
     fun getPlaceId() {
-        println("$placeId -> $placeRate")
+        println("Place ID: $placeId")
     }
     fun getTravelerId() {
-        println("$travelerId")
+        println("Traveler ID: $travelerId")
     }
     fun getGuideId() {
-        println("$guideId")
+        println("Guide ID: $guideId")
     }
     fun getStatus() {
-        println("Booking $status")
+        println("Booking Status: $status")
     }
-    fun getPlaceRate(){
-        println("Place $placeRate")
+    fun getPlaceRate() {
+        println("Place Rate: $placeRate")
     }
 
     class Review(
@@ -55,5 +83,4 @@ abstract class Booking(
             println("Date: $date")
         }
     }
-
 }

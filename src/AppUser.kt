@@ -1,5 +1,6 @@
 abstract class AppUser(
     protected var userName: String,
+    private val password: Int,
     private val userId: Int,
     protected var email: String,
     protected val role: String,
@@ -7,7 +8,7 @@ abstract class AppUser(
     protected var bio: String,
     private val languages: String,
     protected var ratePerHour: Double
-) {
+){
     abstract fun setUserName(): String
     abstract fun setUserId(): Int
     abstract fun setUserEmail(): String
