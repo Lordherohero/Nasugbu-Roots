@@ -11,8 +11,8 @@
  Manager: Verify users and spots, manage the app 
 (Progress)
 (WIP) Core classes 
-(Planed) Android Studio project
-(Planed) Screens for each role
-(Planed) Login and registration
-(Planed) Database
-(Planed) Maps and locations
+(Planned) Android Studio project
+(Planned) Screens for each role
+(Planned) Login and registration
+(Planned) Database
+(Planned) Maps and locations
