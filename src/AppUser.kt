@@ -1,10 +1,10 @@
 open class AppUser(
-    val userId: Int,
-    var userName: String,
-    var email: String,
-    val role: String,
-    var bio: String = "",
-    val verified: Boolean = false
+    private val userId: Int,
+    private var userName: String,
+    protected var email: String,
+    protected val role: String,
+    protected var bio: String,
+    private val verified: Boolean
 ) {
     init {
         require(userId > 0) { "User ID must be positive" }
@@ -14,6 +14,46 @@ open class AppUser(
 
     private fun isValidRole(role: String): Boolean {
         return role == "Tourist" || role == "Guide" || role == "Owner" || role == "Manager"
+    }
+
+    fun getUserId(): Int {
+        return userId
+    }
+
+    fun getUserName(): String {
+        return userName
+    }
+
+    fun getUserEmail(): String {
+        return email
+    }
+
+    fun getUserRole(): String {
+        return role
+    }
+
+    fun getUserBio(): String {
+        return bio
+    }
+
+    fun getUserVerified(): Boolean {
+        return verified
+    }
+
+    fun setUserName(userName: String) {
+        require(userName.isNotBlank()) { "User name cannot be blank" }
+        this.userName = userName
+        println("User name updated to: $userName")
+    }
+
+    fun setUserEmail(email: String) {
+        this.email = email
+        println("Email updated to: $email")
+    }
+
+    fun setUserBio(bio: String) {
+        this.bio = bio
+        println("Bio updated to: $bio")
     }
 
     open fun displayUser() {
@@ -38,13 +78,27 @@ class Guide(
     userId: Int,
     userName: String,
     email: String,
-    val languages: String,
-    var ratePerHour: Double,
+    private val languages: String,
+    private var ratePerHour: Double,
     bio: String = "",
     verified: Boolean = false
 ) : AppUser(userId, userName, email, "Guide", bio, verified) {
     init {
         require(ratePerHour >= 0.0) { "Rate per hour cannot be negative" }
+    }
+
+    fun getUserLanguages(): String {
+        return languages
+    }
+
+    fun getRatePerHour(): Double {
+        return ratePerHour
+    }
+
+    fun setRatePerHour(ratePerHour: Double) {
+        require(ratePerHour >= 0.0) { "Rate per hour cannot be negative" }
+        this.ratePerHour = ratePerHour
+        println("Rate per hour updated to: $ratePerHour")
     }
 
     override fun displayUser() {

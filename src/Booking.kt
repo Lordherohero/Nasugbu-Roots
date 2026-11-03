@@ -1,15 +1,14 @@
-class Booking(
-    val bookingId: Int,
-    val placeId: Int,
-    val touristId: Int,
-    val guideId: Int?,
-    val date: String,
-    val hours: Int,
-    val guideRate: Double,
-    val placeFee: Double
+open class Booking(
+    private val bookingId: Int,
+    private val placeId: Int,
+    private val touristId: Int,
+    private val guideId: Int?,
+    private val date: String,
+    private val hours: Int,
+    private val guideRate: Double,
+    private val placeFee: Double
 ) {
-    var status: String = "Pending"
-        private set
+    private var status: String = "Pending"
 
     init {
         require(bookingId > 0) { "Booking ID must be positive" }
@@ -18,6 +17,44 @@ class Booking(
         require(hours > 0) { "Hours must be positive" }
         require(guideRate >= 0.0) { "Guide rate cannot be negative" }
         require(placeFee >= 0.0) { "Place fee cannot be negative" }
+    }
+
+    private fun isValidStatus(status: String): Boolean {
+        return status == "Pending" || status == "Confirmed" || status == "Cancelled"
+    }
+
+    fun getBookingId(): Int {
+        return bookingId
+    }
+
+    fun getPlaceId(): Int {
+        return placeId
+    }
+
+    fun getTouristId(): Int {
+        return touristId
+    }
+
+    fun getGuideId(): Int? {
+        return guideId
+    }
+
+    fun getDate(): String {
+        return date
+    }
+
+    fun getHours(): Int {
+        return hours
+    }
+
+    fun getStatus(): String {
+        return status
+    }
+
+    fun setStatus(status: String) {
+        require(isValidStatus(status)) { "Status must be Pending, Confirmed, or Cancelled" }
+        this.status = status
+        println("Booking status updated to: $status")
     }
 
     fun totalCost(): Double {
@@ -32,20 +69,22 @@ class Booking(
             println("Cannot confirm a cancelled booking")
             return
         }
-        status = "Confirmed"
-        println("Booking status updated to: $status")
+        setStatus("Confirmed")
     }
 
     fun cancelBooking() {
-        status = "Cancelled"
-        println("Booking status updated to: $status")
+        setStatus("Cancelled")
     }
 
     fun displayBooking() {
         println("Booking ID: $bookingId")
         println("Place ID: $placeId")
         println("Tourist ID: $touristId")
-        println("Guide ID: ${guideId ?: "No guide"}")
+        if (guideId == null) {
+            println("Guide ID: No guide")
+        } else {
+            println("Guide ID: $guideId")
+        }
         println("Date: $date")
         println("Hours: $hours")
         println("Status: $status")
