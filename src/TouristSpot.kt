@@ -9,7 +9,7 @@ class TouristSpot(
     private val latitude: Double,
     private val longitude: Double,
     private val ownerId: Int,
-    private val verified: Boolean,
+    private var verified: Boolean,
     private var entryFee: Double
 ) : Searchable {
 
@@ -97,6 +97,11 @@ class TouristSpot(
     fun setImageUrl(imageUrl: String) {
         this.imageUrl = imageUrl
         println("Image URL updated to: $imageUrl")
+    }
+
+    fun setVerified(verified: Boolean) {
+        this.verified = verified
+        println("Verified updated to: $verified")
     }
 
     fun setEntryFee(entryFee: Double) {
