@@ -121,13 +121,13 @@ class TouristSpot(
     fun displaySpot() {
         println("Place ID: $placeId")
         println("Place Name: $placeName")
-        println("Description: $description")
+        println("Description: ${getDescription()}")
         println("Category: $category")
         println("Allows Guides: $allowsGuides")
         println("Availability: $availability")
-        println("Image Url: $imageUrl")
-        println("Location: $latitude, $longitude")
-        println("Owner ID: $ownerId")
+        println("Image Url: ${getImageUrl()}")
+        println("Location: ${getLatitude()}, ${getLongitude()}")
+        println("Owner ID: ${getOwnerId()}")
         println("Verified: $verified")
         println("Entry Fee: $entryFee")
     }

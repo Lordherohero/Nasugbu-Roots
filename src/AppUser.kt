@@ -4,7 +4,7 @@ open class AppUser(
     protected var email: String,
     protected val role: String,
     protected var bio: String,
-    private val verified: Boolean
+    private var verified: Boolean
 ) {
     init {
         require(userId > 0) { "User ID must be positive" }
@@ -54,6 +54,11 @@ open class AppUser(
     fun setUserBio(bio: String) {
         this.bio = bio
         println("Bio updated to: $bio")
+    }
+
+    fun setUserVerified(verified: Boolean) {
+        this.verified = verified
+        println("Verified updated to: $verified")
     }
 
     open fun displayUser() {
