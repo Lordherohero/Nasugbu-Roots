@@ -11,7 +11,26 @@ class TouristSpot(
     private val ownerId: Int,
     private var verified: Boolean,
     private var entryFee: Double
-) : Searchable {
+) : Searchable, Bookable {
+
+    override fun checkAvailability(): Boolean {
+        return availability
+    }
+
+    override fun bookTour(): Boolean {
+        if (availability && verified) {
+            println("$placeName is available for booking! :)")
+            return true
+        }
+
+        println("$placeName is not available for booking.. :(")
+        return false
+    }
+
+    override fun cancelBooking(): Boolean {
+        println("Booking request cancelled for $placeName.")
+        return true
+    }
 
     init {
         require(placeId > 0) { "Place ID must be positive" }
