@@ -8,7 +8,7 @@ class Review(
     val date: String = ""
 ) {
     fun isValidRating(): Boolean {
-        return rating in 1..5
+        return rating in 1.0..5.0
     }
     fun hasComment(): Boolean {
         return comment.isNotBlank()
@@ -18,5 +18,4 @@ class Review(
         println("Comment: $comment")
         println("Date: $date")
     }
-
 }

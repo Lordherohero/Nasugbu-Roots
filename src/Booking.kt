@@ -7,17 +7,7 @@ open class Booking(
     private val hours: Int,
     private val guideRate: Double,
     private val placeFee: Double
-) : Displayable {
-
-    override fun displayDetails() {
-        println("Booking Details")
-        println("Place ID: $placeId")
-        println("Traveler ID: $touristId")
-        println("Guide ID: $guideId")
-        println("Status: $status")
-        println("Place Rate: $placeFee")
-    }
-
+) {
     private var status: String = "Pending"
 
     init {
