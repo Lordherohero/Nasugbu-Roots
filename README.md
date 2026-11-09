@@ -9,11 +9,8 @@
 - Register a new account as a tourist, guide, or spot owner
 
 User Roles
-
-| Role | What they can do |
-|------|------------------|
-| Tourist | Find spots, book visits, cancel bookings, review spots and guides |
-| Guide | Confirm or cancel assigned bookings, update rate and bio, see reviews |
-| Spot Owner | Add spots, edit details, fee, availability, and whether guides are allowed |
-| Manager | Verify spots and guides |
+- Tourist: Find spots, book visits, cancel bookings, review spots and guides 
+- Guide: Confirm or cancel assigned bookings, update rate and bio, see reviews 
+- Spot Owner: Add spots, edit details, fee, availability, and whether guides are allowed 
+- Manager: Verify spots and guides 
 
