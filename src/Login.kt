@@ -70,7 +70,7 @@ fun chooseUser(): AppUser? {
         println("R. Register a new account")
         println("0. Exit")
 
-        val input = readText("Enter your user ID, R, or 0: ")
+        val input = readText("Enter R, 0 or your user ID: ")
         if (input == "0") {
             return null
         }
