@@ -1,16 +1,14 @@
 fun showGuideBookings(): Int {
-    var found = 0
-    for (booking in bookings) {
-        if (booking.getGuideId() == currentUserId) {
-            booking.displayBooking()
-            println()
-            found++
-        }
-    }
-    if (found == 0) {
+    val mine = bookings.filter { booking -> booking.guideId == currentUserId }
+    if (mine.isEmpty()) {
         println("No bookings are assigned to you yet")
+        return 0
     }
-    return found
+    for (booking in mine) {
+        booking.displayBooking()
+        println()
+    }
+    return mine.size
 }
 
 fun guideUpdateBooking() {
@@ -22,7 +20,7 @@ fun guideUpdateBooking() {
         println("Booking not found")
         return
     }
-    if (booking.getGuideId() != currentUserId) {
+    if (booking.guideId != currentUserId) {
         println("That booking is not assigned to you")
         return
     }

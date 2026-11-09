@@ -1,10 +1,5 @@
 fun chooseOwnSpot(): TouristSpot? {
-    val mine = mutableListOf<TouristSpot>()
-    for (spot in spots) {
-        if (spot.getOwnerId() == currentUserId) {
-            mine.add(spot)
-        }
-    }
+    val mine = spots.filter { spot -> spot.ownerId == currentUserId }
     if (mine.isEmpty()) {
         println("You have no spots yet")
         return null
@@ -15,7 +10,7 @@ fun chooseOwnSpot(): TouristSpot? {
         println("Spot not found")
         return null
     }
-    if (spot.getOwnerId() != currentUserId) {
+    if (spot.ownerId != currentUserId) {
         println("That spot is not yours")
         return null
     }
@@ -23,12 +18,7 @@ fun chooseOwnSpot(): TouristSpot? {
 }
 
 fun showMySpots() {
-    val mine = mutableListOf<TouristSpot>()
-    for (spot in spots) {
-        if (spot.getOwnerId() == currentUserId) {
-            mine.add(spot)
-        }
-    }
+    val mine = spots.filter { spot -> spot.ownerId == currentUserId }
     if (mine.isEmpty()) {
         println("You have no spots yet")
         return
@@ -87,10 +77,22 @@ fun editSpotDetails() {
         return
     }
     when (choice) {
-        "1" -> spot.setPlaceName(value)
-        "2" -> spot.setCategory(value)
-        "3" -> spot.setDescription(value)
-        "4" -> spot.setImageUrl(value)
+        "1" -> {
+            spot.placeName = value
+            println("Place name updated to: $value")
+        }
+        "2" -> {
+            spot.category = value
+            println("Category updated to: $value")
+        }
+        "3" -> {
+            spot.description = value
+            println("Description updated to: $value")
+        }
+        "4" -> {
+            spot.imageUrl = value
+            println("Image updated to: $value")
+        }
     }
 }
 
@@ -104,7 +106,8 @@ fun changeEntryFee() {
         println("Entry fee cannot be negative")
         return
     }
-    spot.setEntryFee(fee)
+    spot.entryFee = fee
+    println("Entry fee updated to: $fee")
 }
 
 fun changeAvailability() {
@@ -112,7 +115,8 @@ fun changeAvailability() {
     if (spot == null) {
         return
     }
-    spot.setAvailability(!spot.getAvailability())
+    spot.availability = !spot.availability
+    println("Availability updated to: ${spot.availability}")
 }
 
 fun changeAllowsGuides() {
@@ -120,5 +124,6 @@ fun changeAllowsGuides() {
     if (spot == null) {
         return
     }
-    spot.setAllowsGuides(!spot.getAllowsGuides())
+    spot.allowsGuides = !spot.allowsGuides
+    println("Allows guides updated to: ${spot.allowsGuides}")
 }

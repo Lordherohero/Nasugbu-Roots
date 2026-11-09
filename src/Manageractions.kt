@@ -1,10 +1,5 @@
 fun verifySpot() {
-    val unverified = mutableListOf<TouristSpot>()
-    for (spot in spots) {
-        if (!spot.getVerified()) {
-            unverified.add(spot)
-        }
-    }
+    val unverified = spots.filter { spot -> !spot.verified }
     if (unverified.isEmpty()) {
         println("All spots are already verified")
         return
@@ -15,20 +10,16 @@ fun verifySpot() {
         println("Spot not found")
         return
     }
-    if (spot.getVerified()) {
+    if (spot.verified) {
         println("That spot is already verified")
         return
     }
-    spot.setVerified(true)
+    spot.verified = true
+    println("Verified updated to: true")
 }
 
 fun verifyGuide() {
-    val unverified = mutableListOf<Guide>()
-    for (guide in guides) {
-        if (!guide.getUserVerified()) {
-            unverified.add(guide)
-        }
-    }
+    val unverified = guides.filter { guide -> !guide.getUserVerified() }
     if (unverified.isEmpty()) {
         println("All guides are already verified")
         return

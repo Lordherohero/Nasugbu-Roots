@@ -3,14 +3,11 @@ import java.time.LocalDate
 fun searchSpots() {
     val name = readText("Search by name (leave blank to skip): ")
     val category = readText("Search by category (leave blank to skip): ")
-    val results = mutableListOf<TouristSpot>()
 
-    for (spot in spots) {
+    val results = spots.filter { spot ->
         val nameMatches = name.isBlank() || spot.searchByName(name)
         val categoryMatches = category.isBlank() || spot.searchByCategory(category)
-        if (nameMatches && categoryMatches) {
-            results.add(spot)
-        }
+        nameMatches && categoryMatches
     }
     showSpots(results)
 }
@@ -42,21 +39,15 @@ fun chooseGuide(): Guide? {
 }
 
 fun isSpotBooked(placeId: Int, date: String): Boolean {
-    for (booking in bookings) {
-        if (booking.getStatus() != "Cancelled" && booking.getPlaceId() == placeId && booking.getDate() == date) {
-            return true
-        }
+    return bookings.any { booking ->
+        booking.status != BookingStatus.CANCELLED && booking.placeId == placeId && booking.date == date
     }
-    return false
 }
 
 fun isGuideBooked(guideId: Int, date: String): Boolean {
-    for (booking in bookings) {
-        if (booking.getStatus() != "Cancelled" && booking.getGuideId() == guideId && booking.getDate() == date) {
-            return true
-        }
+    return bookings.any { booking ->
+        booking.status != BookingStatus.CANCELLED && booking.guideId == guideId && booking.date == date
     }
-    return false
 }
 
 fun chooseBookingDate(placeId: Int, guideId: Int?): String {
@@ -79,7 +70,7 @@ fun bookVisit() {
         println("Spot not found")
         return
     }
-    if (!spot.getAvailability()) {
+    if (!spot.availability) {
         println("This spot is not available")
         return
     }
@@ -87,7 +78,7 @@ fun bookVisit() {
     var guideId: Int? = null
     var guideRate = 0.0
 
-    if (spot.getAllowsGuides()) {
+    if (spot.allowsGuides) {
         val answer = readText("Add a guide? (y/n): ")
         if (answer.equals("y", ignoreCase = true)) {
             val guide = chooseGuide()
@@ -98,14 +89,14 @@ fun bookVisit() {
         }
     }
 
-    val date = chooseBookingDate(spot.getPlaceId(), guideId)
+    val date = chooseBookingDate(spot.placeId, guideId)
     val hours = readInt("Hours: ")
     if (hours <= 0) {
         println("Hours must be positive")
         return
     }
 
-    val booking = Booking(bookings.size + 1, spot.getPlaceId(), currentUserId, guideId, date, hours, guideRate, spot.getEntryFee())
+    val booking = Booking(bookings.size + 1, spot.placeId, currentUserId, guideId, date, hours, guideRate, spot.entryFee)
     bookings.add(booking)
     if (guideId == null) {
         booking.confirmBooking()
@@ -115,25 +106,18 @@ fun bookVisit() {
 }
 
 fun countMyBookings(): Int {
-    var count = 0
-    for (booking in bookings) {
-        if (booking.getTouristId() == currentUserId) {
-            count++
-        }
-    }
-    return count
+    return bookings.count { booking -> booking.touristId == currentUserId }
 }
 
 fun viewMyBookings() {
-    if (countMyBookings() == 0) {
+    val mine = bookings.filter { booking -> booking.touristId == currentUserId }
+    if (mine.isEmpty()) {
         println("You have no bookings yet")
         return
     }
-    for (booking in bookings) {
-        if (booking.getTouristId() == currentUserId) {
-            booking.displayBooking()
-            println()
-        }
+    for (booking in mine) {
+        booking.displayBooking()
+        println()
     }
 }
 
@@ -148,11 +132,11 @@ fun cancelMyBooking() {
         println("Booking not found")
         return
     }
-    if (booking.getTouristId() != currentUserId) {
+    if (booking.touristId != currentUserId) {
         println("That is not your booking")
         return
     }
-    if (booking.getStatus() == "Cancelled") {
+    if (booking.status == BookingStatus.CANCELLED) {
         println("That booking is already cancelled")
         return
     }
@@ -160,16 +144,13 @@ fun cancelMyBooking() {
 }
 
 fun hasReviewedSpot(placeId: Int): Boolean {
-    for (review in reviews) {
-        if (review.userId == currentUserId && review.placeId == placeId && review.guideId == null) {
-            return true
-        }
+    return reviews.any { review ->
+        review.userId == currentUserId && review.placeId == placeId && review.guideId == null
     }
-    return false
 }
 
 fun visitHasHappened(booking: Booking): Boolean {
-    return !LocalDate.parse(booking.getDate()).isAfter(LocalDate.now())
+    return !LocalDate.parse(booking.date).isAfter(LocalDate.now())
 }
 
 fun askReview(placeId: Int, guideId: Int?, label: String): Review {
@@ -190,11 +171,11 @@ fun askReview(placeId: Int, guideId: Int?, label: String): Review {
 }
 
 fun leaveReview() {
-    val eligible = mutableListOf<Booking>()
-    for (booking in bookings) {
-        if (booking.getTouristId() == currentUserId && booking.getStatus() == "Confirmed" && visitHasHappened(booking) && !hasReviewedSpot(booking.getPlaceId())) {
-            eligible.add(booking)
-        }
+    val eligible = bookings.filter { booking ->
+        booking.touristId == currentUserId &&
+                booking.status == BookingStatus.CONFIRMED &&
+                visitHasHappened(booking) &&
+                !hasReviewedSpot(booking.placeId)
     }
     if (eligible.isEmpty()) {
         println("You can review a spot once a confirmed booking's date has arrived")
@@ -202,35 +183,30 @@ fun leaveReview() {
     }
 
     for (booking in eligible) {
-        val spot = findSpot(booking.getPlaceId())
+        val spot = findSpot(booking.placeId)
         var spotName = "Unknown spot"
         if (spot != null) {
-            spotName = spot.getPlaceName()
+            spotName = spot.placeName
         }
-        println("Booking ID: ${booking.getBookingId()} | $spotName | ${booking.getDate()}")
+        println("Booking ID: ${booking.bookingId} | $spotName | ${booking.date}")
     }
 
     val bookingId = readInt("Enter booking ID to review: ")
-    var chosen: Booking? = null
-    for (booking in eligible) {
-        if (booking.getBookingId() == bookingId) {
-            chosen = booking
-        }
-    }
+    val chosen = eligible.find { booking -> booking.bookingId == bookingId }
     if (chosen == null) {
         println("That booking cannot be reviewed")
         return
     }
 
-    val spotReview = askReview(chosen.getPlaceId(), null, "the spot")
+    val spotReview = askReview(chosen.placeId, null, "the spot")
     reviews.add(spotReview)
     println("Spot review added")
 
-    val guideId = chosen.getGuideId()
+    val guideId = chosen.guideId
     if (guideId != null) {
         val answer = readText("Also rate your guide? (y/n): ")
         if (answer.equals("y", ignoreCase = true)) {
-            val guideReview = askReview(chosen.getPlaceId(), guideId, "your guide")
+            val guideReview = askReview(chosen.placeId, guideId, "your guide")
             reviews.add(guideReview)
             println("Guide review added")
         }
@@ -244,7 +220,7 @@ fun viewReviews() {
         println("Spot not found")
         return
     }
-    showReviewList(spotReviews(spot.getPlaceId()))
+    showReviewList(spotReviews(spot.placeId))
 }
 
 fun viewGuideReviews() {

@@ -1,10 +1,5 @@
 fun emailExists(email: String): Boolean {
-    for (user in users) {
-        if (user.getUserEmail().equals(email, ignoreCase = true)) {
-            return true
-        }
-    }
-    return false
+    return users.any { user -> user.getUserEmail().equals(email, ignoreCase = true) }
 }
 
 fun registerUser(): AppUser? {
@@ -57,6 +52,7 @@ fun registerUser(): AppUser? {
     }
 
     users.add(user)
+    saveAll()
     println("Account created for $name. Your user ID is $id")
     if (choice == "2") {
         println("A manager needs to verify your guide account")
@@ -69,7 +65,7 @@ fun chooseUser(): AppUser? {
         println("=== Nasugbu Roots ===")
         println("Who is using the app?")
         for (user in users) {
-            println("ID: ${user.getUserId()} | ${user.getUserName()} | ${user.getUserRole()}")
+            println("ID: ${user.getUserId()} | ${user.getUserName()} | ${user.getUserRole().label}")
         }
         println("R. Register a new account")
         println("0. Exit")

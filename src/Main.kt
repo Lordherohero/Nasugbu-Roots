@@ -1,5 +1,8 @@
 fun main() {
-    loadSampleData()
+    if (!loadAll()) {
+        loadSampleData()
+        saveAll()
+    }
     var running = true
 
     while (running) {
@@ -14,13 +17,13 @@ fun main() {
             println()
 
             val role = user.getUserRole()
-            if (role == "Tourist") {
+            if (role == Role.TOURIST) {
                 touristMenu()
-            } else if (role == "Guide") {
+            } else if (role == Role.GUIDE) {
                 guideMenu()
-            } else if (role == "Owner") {
+            } else if (role == Role.OWNER) {
                 ownerMenu()
-            } else if (role == "Manager") {
+            } else if (role == Role.MANAGER) {
                 managerMenu()
             }
         }

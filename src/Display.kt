@@ -4,7 +4,7 @@ fun showSpots(list: List<TouristSpot>) {
         return
     }
     for (spot in list) {
-        println("ID: ${spot.getPlaceId()} | ${spot.getPlaceName()} (${spot.getCategory()}) | Fee: ${spot.getEntryFee()} | Available: ${spot.getAvailability()} | Verified: ${spot.getVerified()}")
+        println("ID: ${spot.placeId} | ${spot.placeName} (${spot.category}) | Fee: ${spot.entryFee} | Available: ${spot.availability} | Verified: ${spot.verified}")
     }
 }
 
@@ -23,12 +23,11 @@ fun showReviewList(list: List<Review>) {
         println("No reviews yet")
         return
     }
-    var total = 0.0
     for (review in list) {
         review.displayReview()
         println()
-        total += review.rating
     }
+    val total = list.sumOf { review -> review.rating }
     val average = String.format("%.1f", total / list.size)
     println("Average rating: $average (${list.size} reviews)")
 }

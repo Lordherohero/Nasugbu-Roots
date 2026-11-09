@@ -2,18 +2,13 @@ open class AppUser(
     private val userId: Int,
     private var userName: String,
     protected var email: String,
-    protected val role: String,
+    protected val role: Role,
     protected var bio: String,
     private var verified: Boolean
 ) {
     init {
         require(userId > 0) { "User ID must be positive" }
         require(userName.isNotBlank()) { "User name cannot be blank" }
-        require(isValidRole(role)) { "Role must be Tourist, Guide, Owner, or Manager" }
-    }
-
-    private fun isValidRole(role: String): Boolean {
-        return role == "Tourist" || role == "Guide" || role == "Owner" || role == "Manager"
     }
 
     fun getUserId(): Int {
@@ -28,7 +23,7 @@ open class AppUser(
         return email
     }
 
-    fun getUserRole(): String {
+    fun getUserRole(): Role {
         return role
     }
 
@@ -65,7 +60,7 @@ open class AppUser(
         println("User ID: $userId")
         println("User Name: $userName")
         println("Email: $email")
-        println("Role: $role")
+        println("Role: ${role.label}")
         println("Bio: $bio")
         println("Verified: $verified")
     }
@@ -77,7 +72,7 @@ class Tourist(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, "Tourist", bio, verified)
+) : AppUser(userId, userName, email, Role.TOURIST, bio, verified)
 
 class Guide(
     userId: Int,
@@ -87,7 +82,7 @@ class Guide(
     private var ratePerHour: Double,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, "Guide", bio, verified) {
+) : AppUser(userId, userName, email, Role.GUIDE, bio, verified) {
     init {
         require(ratePerHour >= 0.0) { "Rate per hour cannot be negative" }
     }
@@ -119,7 +114,7 @@ class SpotOwner(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, "Owner", bio, verified)
+) : AppUser(userId, userName, email, Role.OWNER, bio, verified)
 
 class Manager(
     userId: Int,
@@ -127,4 +122,4 @@ class Manager(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, "Manager", bio, verified)
+) : AppUser(userId, userName, email, Role.MANAGER, bio, verified)

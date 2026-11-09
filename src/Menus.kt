@@ -31,6 +31,7 @@ fun touristMenu() {
             }
             else -> println("Invalid option")
         }
+        saveAll()
         println()
     }
 }
@@ -67,6 +68,7 @@ fun guideMenu() {
             }
             else -> println("Invalid option")
         }
+        saveAll()
         println()
     }
 }
@@ -98,6 +100,7 @@ fun ownerMenu() {
             }
             else -> println("Invalid option")
         }
+        saveAll()
         println()
     }
 }
@@ -123,6 +126,7 @@ fun managerMenu() {
             }
             else -> println("Invalid option")
         }
+        saveAll()
         println()
     }
 }

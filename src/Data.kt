@@ -25,48 +25,21 @@ fun loadSampleData() {
 }
 
 fun findSpot(id: Int): TouristSpot? {
-    for (spot in spots) {
-        if (spot.getPlaceId() == id) {
-            return spot
-        }
-    }
-    return null
+    return spots.find { spot -> spot.placeId == id }
 }
 
 fun findGuide(id: Int): Guide? {
-    for (guide in guides) {
-        if (guide.getUserId() == id) {
-            return guide
-        }
-    }
-    return null
+    return guides.find { guide -> guide.getUserId() == id }
 }
 
 fun findBooking(id: Int): Booking? {
-    for (booking in bookings) {
-        if (booking.getBookingId() == id) {
-            return booking
-        }
-    }
-    return null
+    return bookings.find { booking -> booking.bookingId == id }
 }
 
 fun spotReviews(placeId: Int): List<Review> {
-    val result = mutableListOf<Review>()
-    for (review in reviews) {
-        if (review.placeId == placeId && review.guideId == null) {
-            result.add(review)
-        }
-    }
-    return result
+    return reviews.filter { review -> review.placeId == placeId && review.guideId == null }
 }
 
 fun guideReviews(guideId: Int): List<Review> {
-    val result = mutableListOf<Review>()
-    for (review in reviews) {
-        if (review.guideId == guideId) {
-            result.add(review)
-        }
-    }
-    return result
+    return reviews.filter { review -> review.guideId == guideId }
 }
