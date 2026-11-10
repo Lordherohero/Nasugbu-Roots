@@ -1,4 +1,4 @@
-package com.mygroup.nasuburoots.ui.theme
+package com.mygroup.nasugburoots.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

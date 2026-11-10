@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mygroup.nasuburoots"
+    namespace = "com.mygroup.nasugburoots"
     compileSdk {
         version = release(37)
     }

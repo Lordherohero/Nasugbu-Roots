@@ -1,4 +1,4 @@
-package com.mygroup.nasuburoots
+package com.mygroup.nasugburoots
 
 import org.junit.Test
 
