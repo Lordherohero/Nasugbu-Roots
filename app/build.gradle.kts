@@ -10,7 +10,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mygroup.nasuburoots"
+        applicationId = "com.mygroup.nasugburoots"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
