@@ -54,10 +54,12 @@ fun HomeScreen() {
                 val menuItems = listOf(
                     "Home",
                     "Explore Heritage Sites",
+                    "Explore Map",
                     "Find Tour Guides",
                     "My Bookings",
                     "Favorites",
                     "About Us"
+
                 )
 
                 menuItems.forEach { item ->
@@ -112,6 +114,16 @@ fun HomeScreen() {
                         .padding(innerPadding)
                 ) {
                     SpotListScreen(sampleSpots)
+                }
+
+            } else if (selectedItem == "Explore Map") {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    NasugbuMapScreen()
                 }
 
             } else {
