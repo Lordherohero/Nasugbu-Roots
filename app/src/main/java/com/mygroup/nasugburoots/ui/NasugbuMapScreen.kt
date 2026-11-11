@@ -39,7 +39,6 @@ fun NasugbuMapScreen() {
                     ctx.applicationContext as Application
                 )
 
-                // Copy offline map from assets to app cache
                 val mapFile = File(ctx.cacheDir, MAP_FILE_NAME)
 
                 if (!mapFile.exists()) {
@@ -49,12 +48,8 @@ fun NasugbuMapScreen() {
                         }
                     }
                 }
-
-                // Create Mapsforge MapView
                 val mapView = MapView(ctx)
                 mapViewState.value = mapView
-
-                // Create tile cache
                 val tileCache = AndroidUtil.createTileCache(
                     ctx,
                     "nasugbu-map-cache",
@@ -62,11 +57,7 @@ fun NasugbuMapScreen() {
                     1f,
                     mapView.model.frameBufferModel.overdrawFactor
                 )
-
-                // Read offline map
                 val mapDataStore = MapFile(FileInputStream(mapFile))
-
-                // Render map
                 val mapLayer = TileRendererLayer(
                     tileCache,
                     mapDataStore,

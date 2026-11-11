@@ -1,5 +1,6 @@
 package com.mygroup.nasugburoots.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.mygroup.nasugburoots.model.TouristSpot
 
 @Composable
-fun SpotListScreen(spots: List<TouristSpot>) {
+fun SpotListScreen(
+    spots: List<TouristSpot>,
+    onSpotClick: (TouristSpot) -> Unit = {}
+) {
     var query by remember { mutableStateOf("") }
     val shown = spots.filter { spot -> query.isBlank() || spot.searchByName(query) }
 
@@ -35,14 +39,14 @@ fun SpotListScreen(spots: List<TouristSpot>) {
         )
         Spacer(modifier = Modifier.height(12.dp))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(shown) { spot -> SpotCard(spot) }
+            items(shown) { spot -> SpotCard(spot, onClick = { onSpotClick(spot) }) }
         }
     }
 }
 
 @Composable
-fun SpotCard(spot: TouristSpot) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+fun SpotCard(spot: TouristSpot, onClick: () -> Unit = {}) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = spot.placeName, style = MaterialTheme.typography.titleMedium)
             Text(text = spot.category, style = MaterialTheme.typography.bodyMedium)

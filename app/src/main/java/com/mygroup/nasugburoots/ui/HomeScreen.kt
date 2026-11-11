@@ -1,6 +1,6 @@
-
 package com.mygroup.nasugburoots.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mygroup.nasugburoots.data.sampleSpots
+import com.mygroup.nasugburoots.model.Booking
+import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
 import com.mygroup.nasugburoots.ui.theme.*
 import kotlinx.coroutines.launch
@@ -44,6 +46,18 @@ fun HomeScreen() {
     var savedSpotIds by remember { mutableStateOf(setOf<Int>()) }
     var exploreOverride by remember {
         mutableStateOf<List<TouristSpot>?>(null)
+    }
+    var selectedSpot by remember { mutableStateOf<TouristSpot?>(null) }
+
+    BackHandler(enabled = selectedSpot != null) {
+        selectedSpot = null
+    }
+
+    var bookingSpot by remember { mutableStateOf<TouristSpot?>(null) }
+    val bookings = remember { mutableStateListOf<Booking>() }
+
+    BackHandler(enabled = bookingSpot != null) {
+        bookingSpot = null
     }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -126,6 +140,8 @@ fun HomeScreen() {
                         onClick = {
                             currentScreen = item
                             exploreOverride = null
+                            selectedSpot = null
+                            bookingSpot = null
 
                             scope.launch {
                                 drawerState.close()
@@ -172,6 +188,8 @@ fun HomeScreen() {
                             selected = selectedTab == index,
                             onClick = {
                                 exploreOverride = null
+                                selectedSpot = null
+                                bookingSpot = null
 
                                 currentScreen = when (index) {
                                     0 -> "Home"
@@ -209,9 +227,33 @@ fun HomeScreen() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        SpotListScreen(
-                            exploreOverride ?: sampleSpots
-                        )
+                        val openSpot = selectedSpot
+                        val bookingFor = bookingSpot
+                        if (openSpot != null && bookingFor != null) {
+                            BookingFormScreen(
+                                spot = bookingFor,
+                                existingBookings = bookings,
+                                nextId = bookings.size + 1,
+                                onBack = { bookingSpot = null },
+                                onConfirm = { booking ->
+                                    bookings.add(booking)
+                                    bookingSpot = null
+                                    selectedSpot = null
+                                    currentScreen = "My Bookings"
+                                }
+                            )
+                        } else if (openSpot != null) {
+                            SpotDetailsScreen(
+                                spot = openSpot,
+                                onBack = { selectedSpot = null },
+                                onBook = { bookingSpot = openSpot }
+                            )
+                        } else {
+                            SpotListScreen(
+                                spots = exploreOverride ?: sampleSpots,
+                                onSpotClick = { selectedSpot = it }
+                            )
+                        }
                     }
                 }
 
@@ -261,9 +303,15 @@ fun HomeScreen() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        EmptyPage(
-                            title = "My Visits",
-                            message = "Your tour bookings and visits will appear here."
+                        MyBookingsScreen(
+                            bookings = bookings,
+                            spots = sampleSpots,
+                            onCancel = { id ->
+                                val index = bookings.indexOfFirst { item -> item.bookingId == id }
+                                if (index >= 0) {
+                                    bookings[index] = bookings[index].copy(status = BookingStatus.CANCELLED)
+                                }
+                            }
                         )
                     }
                 }
@@ -368,6 +416,11 @@ fun HomeScreen() {
                                 PlaceCarousel(
                                     spots = visibleSpots,
                                     savedSpotIds = savedSpotIds,
+                                    onSpotClick = { spot ->
+                                        selectedSpot = spot
+                                        exploreOverride = null
+                                        currentScreen = "Explore Heritage Sites"
+                                    },
                                     onSave = { id ->
                                         savedSpotIds =
                                             if (id in savedSpotIds) {
@@ -791,6 +844,7 @@ private fun PlaceCarousel(
     spots: List<TouristSpot>,
     savedSpotIds: Set<Int>,
     onSave: (Int) -> Unit,
+    onSpotClick: (TouristSpot) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyRow(
@@ -804,6 +858,9 @@ private fun PlaceCarousel(
                 isSaved = spot.placeId in savedSpotIds,
                 onSave = {
                     onSave(spot.placeId)
+                },
+                onClick = {
+                    onSpotClick(spot)
                 }
             )
         }
@@ -814,10 +871,13 @@ private fun PlaceCarousel(
 private fun PlaceCard(
     spot: TouristSpot,
     isSaved: Boolean,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(218.dp),
+        modifier = Modifier
+            .width(218.dp)
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(19.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
