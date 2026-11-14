@@ -69,7 +69,6 @@ fun NasugbuMapScreen() {
 
                 mapView.layerManager.layers.add(mapLayer)
 
-                // Nasugbu Landing Monument marker
                 val markerView = TextView(ctx).apply {
                     text = "📍"
                     textSize = 32f

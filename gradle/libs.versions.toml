@@ -1,4 +1,6 @@
 [versions]
+firebaseBom = "35.2.0"
+googleServices = "4.6.0"
 agp = "9.4.0"
 coreKtx = "1.19.1"
 junit = "4.13.2"
@@ -12,6 +14,8 @@ mapsforge = "0.25.0"
 coil = "2.7.0"
 
 [libraries]
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -33,6 +37,7 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 [plugins]
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

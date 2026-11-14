@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "964153151779",
+    "project_id": "nasugbu-roots",
+    "storage_bucket": "nasugbu-roots.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964153151779:android:c83f548841e34e780f7c96",
+        "android_client_info": {
+          "package_name": "com.mygroup.nasugburoots"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClRinarGJwZxw9raFDJ2XCLuWYkhZgvAI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
