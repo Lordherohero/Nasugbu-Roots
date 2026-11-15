@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.mygroup.nasugburoots.data.sampleSpots
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
@@ -38,9 +39,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
-
-    val spots = rememberSpots()
-    val guides = rememberGuides()
 
     var currentScreen by remember { mutableStateOf("Home") }
     var searchQuery by remember { mutableStateOf("") }
@@ -65,12 +63,12 @@ fun HomeScreen() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val categories = remember(spots) {
-        listOf("All") + spots.map { it.category }.distinct()
+    val categories = remember {
+        listOf("All") + sampleSpots.map { it.category }.distinct()
     }
 
-    val visibleSpots = remember(spots, searchQuery, selectedCategory) {
-        spots.filter { spot ->
+    val visibleSpots = remember(searchQuery, selectedCategory) {
+        sampleSpots.filter { spot ->
             val matchesSearch =
                 spot.placeName.contains(searchQuery, ignoreCase = true) ||
                         spot.description.contains(searchQuery, ignoreCase = true) ||
@@ -84,7 +82,7 @@ fun HomeScreen() {
         }
     }
 
-    val savedSpots = spots.filter {
+    val savedSpots = sampleSpots.filter {
         it.placeId in savedSpotIds
     }
 
@@ -234,7 +232,6 @@ fun HomeScreen() {
                         if (openSpot != null && bookingFor != null) {
                             BookingFormScreen(
                                 spot = bookingFor,
-                                guides = guides,
                                 existingBookings = bookings,
                                 nextId = bookings.size + 1,
                                 onBack = { bookingSpot = null },
@@ -253,7 +250,7 @@ fun HomeScreen() {
                             )
                         } else {
                             SpotListScreen(
-                                spots = exploreOverride ?: spots,
+                                spots = exploreOverride ?: sampleSpots,
                                 onSpotClick = { selectedSpot = it }
                             )
                         }
@@ -308,8 +305,7 @@ fun HomeScreen() {
                     ) {
                         MyBookingsScreen(
                             bookings = bookings,
-                            spots = spots,
-                            guides = guides,
+                            spots = sampleSpots,
                             onCancel = { id ->
                                 val index = bookings.indexOfFirst { item -> item.bookingId == id }
                                 if (index >= 0) {
@@ -372,7 +368,7 @@ fun HomeScreen() {
                                     currentScreen = "Find Tour Guides"
                                 },
                                 onTrails = {
-                                    exploreOverride = spots.filter {
+                                    exploreOverride = sampleSpots.filter {
                                         it.category.contains(
                                             "Hiking",
                                             ignoreCase = true

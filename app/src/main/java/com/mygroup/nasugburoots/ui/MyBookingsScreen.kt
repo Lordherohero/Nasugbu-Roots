@@ -17,16 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mygroup.nasugburoots.data.sampleGuides
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
-import com.mygroup.nasugburoots.model.Guide
 import com.mygroup.nasugburoots.model.TouristSpot
 
 @Composable
 fun MyBookingsScreen(
     bookings: List<Booking>,
     spots: List<TouristSpot>,
-    guides: List<Guide>,
     onCancel: (Int) -> Unit
 ) {
     if (bookings.isEmpty()) {
@@ -49,7 +48,7 @@ fun MyBookingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(bookings) { booking ->
-                BookingCard(booking, spots, guides, onCancel)
+                BookingCard(booking, spots, onCancel)
             }
         }
     }
@@ -59,12 +58,11 @@ fun MyBookingsScreen(
 private fun BookingCard(
     booking: Booking,
     spots: List<TouristSpot>,
-    guides: List<Guide>,
     onCancel: (Int) -> Unit
 ) {
     val spot = spots.find { item -> item.placeId == booking.placeId }
     val spotName = if (spot != null) spot.placeName else "Unknown spot"
-    val guide = guides.find { item -> item.guideId == booking.guideId }
+    val guide = sampleGuides.find { item -> item.guideId == booking.guideId }
     val guideName = if (guide != null) guide.name else "No guide"
 
     Card(modifier = Modifier.fillMaxWidth()) {

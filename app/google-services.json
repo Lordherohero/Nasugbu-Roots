@@ -12,7 +12,6 @@
           "package_name": "com.mygroup.nasugburoots"
         }
       },
-      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyClRinarGJwZxw9raFDJ2XCLuWYkhZgvAI"
@@ -20,7 +19,6 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
         }
       }
     }
