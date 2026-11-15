@@ -29,7 +29,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.mygroup.nasugburoots.data.sampleSpots
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
@@ -40,6 +39,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen() {
 
+    val spots = rememberSpots()
+    val guides = rememberGuides()
+
     var currentScreen by remember { mutableStateOf("Home") }
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("All") }
@@ -49,26 +51,30 @@ fun HomeScreen() {
     }
     var selectedSpot by remember { mutableStateOf<TouristSpot?>(null) }
 
-    BackHandler(enabled = selectedSpot != null) {
-        selectedSpot = null
-    }
-
     var bookingSpot by remember { mutableStateOf<TouristSpot?>(null) }
     val bookings = remember { mutableStateListOf<Booking>() }
 
-    BackHandler(enabled = bookingSpot != null) {
-        bookingSpot = null
+    // Back from the booking form returns to destination details.
+    // Back from destination details returns to the spot list.
+    BackHandler(enabled = selectedSpot != null || bookingSpot != null) {
+        if (bookingSpot != null) {
+            bookingSpot = null
+        } else {
+            selectedSpot = null
+        }
     }
+
+    val isDetailOrBookingScreen = selectedSpot != null || bookingSpot != null
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val categories = remember {
-        listOf("All") + sampleSpots.map { it.category }.distinct()
+    val categories = remember(spots) {
+        listOf("All") + spots.map { it.category }.distinct()
     }
 
-    val visibleSpots = remember(searchQuery, selectedCategory) {
-        sampleSpots.filter { spot ->
+    val visibleSpots = remember(spots, searchQuery, selectedCategory) {
+        spots.filter { spot ->
             val matchesSearch =
                 spot.placeName.contains(searchQuery, ignoreCase = true) ||
                         spot.description.contains(searchQuery, ignoreCase = true) ||
@@ -82,7 +88,7 @@ fun HomeScreen() {
         }
     }
 
-    val savedSpots = sampleSpots.filter {
+    val savedSpots = spots.filter {
         it.placeId in savedSpotIds
     }
 
@@ -162,58 +168,62 @@ fun HomeScreen() {
             containerColor = Cream,
 
             topBar = {
-                BrandTopBar(
-                    onMenuClick = {
-                        scope.launch {
-                            drawerState.open()
+                if (!isDetailOrBookingScreen) {
+                    BrandTopBar(
+                        onMenuClick = {
+                            scope.launch {
+                                drawerState.open()
+                            }
                         }
-                    }
-                )
+                    )
+                }
             },
 
             bottomBar = {
-                NavigationBar(
-                    containerColor = Cream,
-                    tonalElevation = 8.dp
-                ) {
-                    val navigationItems = listOf(
-                        Triple(Icons.Filled.Home, "Home", 0),
-                        Triple(Icons.Outlined.Explore, "Explore", 1),
-                        Triple(Icons.Outlined.CalendarMonth, "Visits", 2),
-                        Triple(Icons.Outlined.BookmarkBorder, "Saved", 3)
-                    )
-
-                    navigationItems.forEach { (icon, label, index) ->
-                        NavigationBarItem(
-                            selected = selectedTab == index,
-                            onClick = {
-                                exploreOverride = null
-                                selectedSpot = null
-                                bookingSpot = null
-
-                                currentScreen = when (index) {
-                                    0 -> "Home"
-                                    1 -> "Explore Heritage Sites"
-                                    2 -> "My Bookings"
-                                    else -> "Favorites"
-                                }
-                            },
-                            icon = {
-                                Icon(
-                                    icon,
-                                    contentDescription = label
-                                )
-                            },
-                            label = {
-                                Text(label, fontSize = 11.sp)
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Forest,
-                                selectedTextColor = Forest,
-                                indicatorColor = Color(0xFFE1ECE5),
-                                unselectedIconColor = Muted
-                            )
+                if (!isDetailOrBookingScreen) {
+                    NavigationBar(
+                        containerColor = Cream,
+                        tonalElevation = 8.dp
+                    ) {
+                        val navigationItems = listOf(
+                            Triple(Icons.Filled.Home, "Home", 0),
+                            Triple(Icons.Outlined.Explore, "Explore", 1),
+                            Triple(Icons.Outlined.CalendarMonth, "Visits", 2),
+                            Triple(Icons.Outlined.BookmarkBorder, "Saved", 3)
                         )
+
+                        navigationItems.forEach { (icon, label, index) ->
+                            NavigationBarItem(
+                                selected = selectedTab == index,
+                                onClick = {
+                                    exploreOverride = null
+                                    selectedSpot = null
+                                    bookingSpot = null
+
+                                    currentScreen = when (index) {
+                                        0 -> "Home"
+                                        1 -> "Explore Heritage Sites"
+                                        2 -> "My Bookings"
+                                        else -> "Favorites"
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        icon,
+                                        contentDescription = label
+                                    )
+                                },
+                                label = {
+                                    Text(label, fontSize = 11.sp)
+                                },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = Forest,
+                                    selectedTextColor = Forest,
+                                    indicatorColor = Color(0xFFE1ECE5),
+                                    unselectedIconColor = Muted
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -229,30 +239,51 @@ fun HomeScreen() {
                     ) {
                         val openSpot = selectedSpot
                         val bookingFor = bookingSpot
-                        if (openSpot != null && bookingFor != null) {
-                            BookingFormScreen(
-                                spot = bookingFor,
-                                existingBookings = bookings,
-                                nextId = bookings.size + 1,
-                                onBack = { bookingSpot = null },
-                                onConfirm = { booking ->
-                                    bookings.add(booking)
-                                    bookingSpot = null
-                                    selectedSpot = null
-                                    currentScreen = "My Bookings"
-                                }
-                            )
-                        } else if (openSpot != null) {
-                            SpotDetailsScreen(
-                                spot = openSpot,
-                                onBack = { selectedSpot = null },
-                                onBook = { bookingSpot = openSpot }
-                            )
-                        } else {
-                            SpotListScreen(
-                                spots = exploreOverride ?: sampleSpots,
-                                onSpotClick = { selectedSpot = it }
-                            )
+
+                        when {
+                            openSpot != null && bookingFor != null -> {
+                                BookingFormScreen(
+                                    spot = bookingFor,
+                                    guides = guides,
+                                    existingBookings = bookings,
+                                    nextId = (bookings.maxOfOrNull { it.bookingId } ?: 0) + 1,
+                                    onBack = {
+                                        bookingSpot = null
+                                    },
+                                    onConfirm = { booking ->
+                                        bookings.add(booking)
+                                        bookingSpot = null
+                                        selectedSpot = null
+                                        currentScreen = "My Bookings"
+                                    }
+                                )
+                            }
+
+                            openSpot != null -> {
+                                DestinationDetailsScreen(
+                                    spot = openSpot,
+                                    onBack = {
+                                        selectedSpot = null
+                                    },
+                                    onBookNow = { spot ->
+                                        bookingSpot = spot
+                                    },
+                                    onOpenMap = {
+                                        selectedSpot = null
+                                        bookingSpot = null
+                                        currentScreen = "Explore Map"
+                                    }
+                                )
+                            }
+
+                            else -> {
+                                SpotListScreen(
+                                    spots = exploreOverride ?: spots,
+                                    onSpotClick = { spot ->
+                                        selectedSpot = spot
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -279,7 +310,14 @@ fun HomeScreen() {
                                 message = "Tap the bookmark icon on a destination to save it."
                             )
                         } else {
-                            SpotListScreen(savedSpots)
+                            SpotListScreen(
+                                spots = savedSpots,
+                                onSpotClick = { spot ->
+                                    exploreOverride = savedSpots
+                                    selectedSpot = spot
+                                    currentScreen = "Explore Heritage Sites"
+                                }
+                            )
                         }
                     }
                 }
@@ -305,7 +343,8 @@ fun HomeScreen() {
                     ) {
                         MyBookingsScreen(
                             bookings = bookings,
-                            spots = sampleSpots,
+                            spots = spots,
+                            guides = guides,
                             onCancel = { id ->
                                 val index = bookings.indexOfFirst { item -> item.bookingId == id }
                                 if (index >= 0) {
@@ -368,7 +407,7 @@ fun HomeScreen() {
                                     currentScreen = "Find Tour Guides"
                                 },
                                 onTrails = {
-                                    exploreOverride = sampleSpots.filter {
+                                    exploreOverride = spots.filter {
                                         it.category.contains(
                                             "Hiking",
                                             ignoreCase = true

@@ -35,7 +35,6 @@ import com.mygroup.nasugburoots.data.TEMP_TOURIST_ID
 import com.mygroup.nasugburoots.data.formatDate
 import com.mygroup.nasugburoots.data.isGuideBooked
 import com.mygroup.nasugburoots.data.isSpotBooked
-import com.mygroup.nasugburoots.data.sampleGuides
 import com.mygroup.nasugburoots.data.todayUtcMillis
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
@@ -48,6 +47,7 @@ import com.mygroup.nasugburoots.ui.theme.Forest
 @Composable
 fun BookingFormScreen(
     spot: TouristSpot,
+    guides: List<Guide>,
     existingBookings: List<Booking>,
     nextId: Int,
     onBack: () -> Unit,
@@ -135,7 +135,7 @@ fun BookingFormScreen(
                 )
                 Text("No guide")
             }
-            sampleGuides.forEach { option ->
+            guides.forEach { option ->
                 val label = if (option.verified) {
                     "${option.name} (verified)"
                 } else {
