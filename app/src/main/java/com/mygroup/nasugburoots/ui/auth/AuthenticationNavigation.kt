@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.mygroup.nasugburoots.data.UserRepository
 import com.mygroup.nasugburoots.ui.HomeScreen
 import kotlinx.coroutines.launch
+import com.mygroup.nasugburoots.data.CurrentUser
 
 
 @Composable
@@ -55,6 +56,7 @@ fun NasugbuRootsAuthApp() {
 
                             result.onSuccess { profile ->
                                 loggedInProfile = profile
+                                CurrentUser.id = profile.userId
 
                                 when (profile.status) {
                                     AccountStatus.ACTIVE -> {
@@ -133,6 +135,7 @@ fun NasugbuRootsAuthApp() {
 
                                     result.onSuccess { profile ->
                                         loggedInProfile = profile
+                                        CurrentUser.id = profile.userId
                                         destination = AuthDestination.REGISTRATION_SUCCESS
                                     }
 
@@ -180,7 +183,8 @@ fun NasugbuRootsAuthApp() {
                             role = AccountRole.LOCAL_GUIDE
                         ) { result ->
 
-                            result.onSuccess {
+                            result.onSuccess { profile ->
+                                CurrentUser.id = profile.userId
                                 destination = AuthDestination.PENDING_VERIFICATION
                             }
 
@@ -210,7 +214,8 @@ fun NasugbuRootsAuthApp() {
                             role = AccountRole.SITE_OWNER
                         ) { result ->
 
-                            result.onSuccess {
+                            result.onSuccess { profile ->
+                                CurrentUser.id = profile.userId
                                 destination = AuthDestination.PENDING_VERIFICATION
                             }
 
