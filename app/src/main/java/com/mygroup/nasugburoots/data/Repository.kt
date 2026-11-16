@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.Guide
+import com.mygroup.nasugburoots.model.Review
 import com.mygroup.nasugburoots.model.TouristSpot
 
 object Repository {
@@ -101,5 +102,28 @@ object Repository {
         db.collection("bookings").document(bookingId)
             .update("status", status.name)
             .addOnFailureListener { Log.e(TAG, "Could not update booking", it) }
+    }
+
+    fun listenToReviews(onChange: (List<Review>) -> Unit): ListenerRegistration {
+        return db.collection("reviews").addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) {
+                Log.e(TAG, "Reviews listener failed", error)
+                return@addSnapshotListener
+            }
+            try {
+                val reviews = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Review::class.java)?.copy(reviewId = doc.id)
+                }
+                onChange(reviews.sortedByDescending { it.date })
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not read reviews", e)
+            }
+        }
+    }
+
+    fun addReview(review: Review) {
+        val document = db.collection("reviews").document()
+        document.set(review.copy(reviewId = document.id))
+            .addOnFailureListener { Log.e(TAG, "Could not save review", it) }
     }
 }

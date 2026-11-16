@@ -10,6 +10,7 @@ import androidx.compose.runtime.setValue
 import com.mygroup.nasugburoots.data.Repository
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.Guide
+import com.mygroup.nasugburoots.model.Review
 import com.mygroup.nasugburoots.model.TouristSpot
 
 @Composable
@@ -50,4 +51,16 @@ fun rememberBookings(): List<Booking> {
     }
 
     return bookings
+}
+
+@Composable
+fun rememberReviews(): List<Review> {
+    var reviews by remember { mutableStateOf(emptyList<Review>()) }
+
+    DisposableEffect(Unit) {
+        val registration = Repository.listenToReviews { reviews = it }
+        onDispose { registration.remove() }
+    }
+
+    return reviews
 }

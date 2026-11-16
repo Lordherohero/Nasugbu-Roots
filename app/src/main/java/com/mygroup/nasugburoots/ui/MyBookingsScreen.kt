@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -25,9 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mygroup.nasugburoots.data.CurrentUser
+import com.mygroup.nasugburoots.data.hasReviewedSpot
 import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.Guide
+import com.mygroup.nasugburoots.model.Review
 import com.mygroup.nasugburoots.model.TouristSpot
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -45,7 +49,9 @@ fun MyBookingsScreen(
     bookings: List<Booking>,
     spots: List<TouristSpot>,
     guides: List<Guide>,
-    onCancel: (String) -> Unit
+    reviews: List<Review>,
+    onCancel: (String) -> Unit,
+    onWriteReview: (Booking) -> Unit
 ) {
     var selectedFilter by remember {
         mutableStateOf(VisitFilter.UPCOMING)
@@ -205,8 +211,10 @@ fun MyBookingsScreen(
                         booking = booking,
                         spots = spots,
                         guides = guides,
+                        reviews = reviews,
                         isCompleted = isCompleted(booking),
-                        onCancel = onCancel
+                        onCancel = onCancel,
+                        onWriteReview = onWriteReview
                     )
                 }
             }
@@ -251,8 +259,10 @@ private fun BookingCard(
     booking: Booking,
     spots: List<TouristSpot>,
     guides: List<Guide>,
+    reviews: List<Review>,
     isCompleted: Boolean,
-    onCancel: (String) -> Unit
+    onCancel: (String) -> Unit,
+    onWriteReview: (Booking) -> Unit
 ) {
     val spot = spots.find { it.placeId == booking.placeId }
     val spotName = spot?.placeName ?: "Unknown spot"
@@ -329,6 +339,26 @@ private fun BookingCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Cancel booking")
+                }
+            }
+
+            if (isCompleted && booking.status == BookingStatus.CONFIRMED) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (hasReviewedSpot(reviews, CurrentUser.id, booking.placeId)) {
+                    Text(
+                        text = "You reviewed this visit",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Button(
+                        onClick = {
+                            onWriteReview(booking)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Write a review")
+                    }
                 }
             }
         }
