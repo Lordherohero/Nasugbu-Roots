@@ -43,6 +43,7 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
 
     val spots = rememberSpots()
     val guides = rememberGuides()
+    val reviews = rememberReviews()
 
     var currentScreen by remember { mutableStateOf("Home") }
     var searchQuery by remember { mutableStateOf("") }
@@ -54,18 +55,21 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
     var selectedSpot by remember { mutableStateOf<TouristSpot?>(null) }
 
     var bookingSpot by remember { mutableStateOf<TouristSpot?>(null) }
+    var reviewingBooking by remember { mutableStateOf<com.mygroup.nasugburoots.model.Booking?>(null) }
     val allBookings = rememberBookings()
     val myBookings = allBookings.filter { it.touristId == CurrentUser.id }
 
-    BackHandler(enabled = selectedSpot != null || bookingSpot != null) {
-        if (bookingSpot != null) {
+    BackHandler(enabled = selectedSpot != null || bookingSpot != null || reviewingBooking != null) {
+        if (reviewingBooking != null) {
+            reviewingBooking = null
+        } else if (bookingSpot != null) {
             bookingSpot = null
         } else {
             selectedSpot = null
         }
     }
 
-    val isDetailOrBookingScreen = selectedSpot != null || bookingSpot != null
+    val isDetailOrBookingScreen = selectedSpot != null || bookingSpot != null || reviewingBooking != null
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -262,7 +266,7 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
                             openSpot != null -> {
                                 DestinationDetailsScreen(
                                     spot = openSpot,
-                                    userProfile = userProfile,
+                                    reviews = reviews.filter { it.placeId == openSpot.placeId },
                                     onBack = {
                                         selectedSpot = null
                                     },
@@ -342,14 +346,37 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        MyBookingsScreen(
-                            bookings = myBookings,
-                            spots = spots,
-                            guides = guides,
-                            onCancel = { id ->
-                                Repository.updateBookingStatus(id, BookingStatus.CANCELLED)
-                            }
-                        )
+                        val targetBookingForReview = reviewingBooking
+                        if (targetBookingForReview != null) {
+                            val spot = spots.firstOrNull { it.placeId == targetBookingForReview.placeId }
+                            val guide = guides.firstOrNull { it.guideId == targetBookingForReview.guideId }
+                            ReviewFormScreen(
+                                booking = targetBookingForReview,
+                                spotName = spot?.placeName ?: "Destination",
+                                guideName = guide?.name,
+                                onBack = { reviewingBooking = null },
+                                onSubmit = { spotReview, guideReview ->
+                                    Repository.addReview(spotReview)
+                                    if (guideReview != null) {
+                                        Repository.addReview(guideReview)
+                                    }
+                                    reviewingBooking = null
+                                }
+                            )
+                        } else {
+                            MyBookingsScreen(
+                                bookings = myBookings,
+                                spots = spots,
+                                guides = guides,
+                                reviews = reviews,
+                                onCancel = { id ->
+                                    Repository.updateBookingStatus(id, BookingStatus.CANCELLED)
+                                },
+                                onWriteReview = { booking ->
+                                    reviewingBooking = booking
+                                }
+                            )
+                        }
                     }
                 }
 
