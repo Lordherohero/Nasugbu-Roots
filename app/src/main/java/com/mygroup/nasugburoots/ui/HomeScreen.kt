@@ -29,7 +29,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.mygroup.nasugburoots.model.Booking
+import com.mygroup.nasugburoots.data.CurrentUser
+import com.mygroup.nasugburoots.data.Repository
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
 import com.mygroup.nasugburoots.ui.theme.*
@@ -52,10 +53,9 @@ fun HomeScreen() {
     var selectedSpot by remember { mutableStateOf<TouristSpot?>(null) }
 
     var bookingSpot by remember { mutableStateOf<TouristSpot?>(null) }
-    val bookings = remember { mutableStateListOf<Booking>() }
+    val allBookings = rememberBookings()
+    val myBookings = allBookings.filter { it.touristId == CurrentUser.id }
 
-    // Back from the booking form returns to destination details.
-    // Back from destination details returns to the spot list.
     BackHandler(enabled = selectedSpot != null || bookingSpot != null) {
         if (bookingSpot != null) {
             bookingSpot = null
@@ -245,13 +245,12 @@ fun HomeScreen() {
                                 BookingFormScreen(
                                     spot = bookingFor,
                                     guides = guides,
-                                    existingBookings = bookings,
-                                    nextId = (bookings.maxOfOrNull { it.bookingId } ?: 0) + 1,
+                                    existingBookings = allBookings,
                                     onBack = {
                                         bookingSpot = null
                                     },
                                     onConfirm = { booking ->
-                                        bookings.add(booking)
+                                        Repository.addBooking(booking)
                                         bookingSpot = null
                                         selectedSpot = null
                                         currentScreen = "My Bookings"
@@ -342,14 +341,11 @@ fun HomeScreen() {
                             .padding(innerPadding)
                     ) {
                         MyBookingsScreen(
-                            bookings = bookings,
+                            bookings = myBookings,
                             spots = spots,
                             guides = guides,
                             onCancel = { id ->
-                                val index = bookings.indexOfFirst { item -> item.bookingId == id }
-                                if (index >= 0) {
-                                    bookings[index] = bookings[index].copy(status = BookingStatus.CANCELLED)
-                                }
+                                Repository.updateBookingStatus(id, BookingStatus.CANCELLED)
                             }
                         )
                     }

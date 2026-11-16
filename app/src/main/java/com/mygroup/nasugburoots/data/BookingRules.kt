@@ -8,8 +8,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-const val TEMP_TOURIST_ID = 1
-
 fun isSpotBooked(bookings: List<Booking>, placeId: Int, date: String): Boolean {
     return bookings.any { booking ->
         booking.status != BookingStatus.CANCELLED && booking.placeId == placeId && booking.date == date

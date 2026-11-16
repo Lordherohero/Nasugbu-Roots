@@ -1,9 +1,9 @@
 package com.mygroup.nasugburoots.model
 
 data class Booking(
-    val bookingId: Int = 0,
+    val bookingId: String = "",
     val placeId: Int = 0,
-    val touristId: Int = 0,
+    val touristId: String = "",
     val guideId: Int? = null,
     val date: String = "",
     val hours: Int = 1,
