@@ -34,10 +34,22 @@ import com.mygroup.nasugburoots.ui.theme.DeepForest
 import com.mygroup.nasugburoots.ui.theme.Forest
 import com.mygroup.nasugburoots.ui.theme.Gold
 import com.mygroup.nasugburoots.ui.theme.Muted
+import com.mygroup.nasugburoots.ui.auth.AccountProfile
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.mygroup.nasugburoots.data.ReviewRepository
+import com.mygroup.nasugburoots.model.Review
+import com.mygroup.nasugburoots.ui.auth.AccountRole
+import com.mygroup.nasugburoots.ui.auth.AccountStatus
+import java.text.DateFormat
 
 @Composable
 fun DestinationDetailsScreen(
     spot: TouristSpot,
+    userProfile: AccountProfile? = null,
     onBack: () -> Unit,
     onBookNow: (TouristSpot) -> Unit,
     onOpenMap: (TouristSpot) -> Unit
@@ -323,6 +335,14 @@ fun DestinationDetailsScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
+
+                // Destination Reviews
+                DestinationReviewsSection(
+                    spot = spot,
+                    userProfile = userProfile
+                )
+
+                Spacer(Modifier.height(24.dp))
             }
         }
 
@@ -400,6 +420,256 @@ private fun InformationCard(
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun DestinationReviewsSection(
+    spot: TouristSpot,
+    userProfile: AccountProfile?
+) {
+    val reviews = remember(spot.placeId) {
+        mutableStateListOf<Review>()
+    }
+
+    val rating = remember { mutableStateOf(0) }
+    val comment = remember { mutableStateOf("") }
+    val isSubmitting = remember { mutableStateOf(false) }
+    val message = remember { mutableStateOf("") }
+
+    val canReview = userProfile?.let {
+        it.role == AccountRole.TOURIST &&
+                it.status == AccountStatus.ACTIVE
+    } == true
+
+    // Load reviews when the destination opens
+    LaunchedEffect(spot.placeId) {
+        ReviewRepository.getReviewsForPlace(spot.placeId) { result ->
+            result.onSuccess { loadedReviews ->
+                reviews.clear()
+                reviews.addAll(loadedReviews)
+            }
+        }
+    }
+
+    val averageRating = if (reviews.isEmpty()) {
+        0.0
+    } else {
+        reviews.map { it.rating }.average()
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        Text(
+            text = "Reviews & Ratings",
+            color = DeepForest,
+            fontSize = 21.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Serif
+        )
+
+        Spacer(Modifier.height(8.dp))
+
+        Text(
+            text = if (reviews.isEmpty()) {
+                "No reviews yet. Be the first to share your experience!"
+            } else {
+                "★ ${String.format("%.1f", averageRating)} / 5.0  •  ${reviews.size} reviews"
+            },
+            color = Gold,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        // Review submission form for active tourists
+        if (canReview) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+
+                    Text(
+                        text = "Share your experience",
+                        color = DeepForest,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+
+                    Spacer(Modifier.height(10.dp))
+
+                    Text(
+                        text = "Your rating",
+                        color = Muted,
+                        fontSize = 13.sp
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        (1..5).forEach { star ->
+                            Text(
+                                text = if (star <= rating.value) "★" else "☆",
+                                color = Gold,
+                                fontSize = 32.sp,
+                                modifier = Modifier
+                                    .clickable { rating.value = star }
+                                    .padding(end = 5.dp)
+                            )
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = comment.value,
+                        onValueChange = { comment.value = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Write your review") },
+                        placeholder = {
+                            Text("Tell others about your experience...")
+                        },
+                        minLines = 3,
+                        maxLines = 5,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    if (message.value.isNotBlank()) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = message.value,
+                            color = Forest,
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            val profile = userProfile
+
+                            isSubmitting.value = true
+                            message.value = ""
+
+                            val newReview = Review(
+                                userId = profile.userId,
+                                placeId = spot.placeId,
+                                reviewerName = profile.fullName,
+                                rating = rating.value.toDouble(),
+                                comment = comment.value.trim()
+                            )
+
+                            ReviewRepository.submitReview(newReview) { result ->
+                                isSubmitting.value = false
+
+                                result.onSuccess {
+                                    comment.value = ""
+                                    rating.value = 0
+                                    message.value = "Your review was submitted!"
+
+                                    ReviewRepository.getReviewsForPlace(
+                                        spot.placeId
+                                    ) { refreshResult ->
+                                        refreshResult.onSuccess { updated ->
+                                            reviews.clear()
+                                            reviews.addAll(updated)
+                                        }
+                                    }
+                                }
+
+                                result.onFailure { error ->
+                                    message.value =
+                                        error.message ?: "Unable to submit review."
+                                }
+                            }
+                        },
+                        enabled = rating.value > 0 &&
+                                comment.value.isNotBlank() &&
+                                !isSubmitting.value,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Forest
+                        )
+                    ) {
+                        Text(
+                            if (isSubmitting.value) {
+                                "Submitting..."
+                            } else {
+                                "Submit Review"
+                            }
+                        )
+                    }
+                }
+            }
+        } else if (userProfile == null) {
+            Text(
+                text = "Log in as a tourist to submit a review.",
+                color = Muted,
+                fontSize = 13.sp
+            )
+        }
+
+        Spacer(Modifier.height(18.dp))
+
+        // Display submitted reviews
+        if (reviews.isEmpty()) {
+            Text(
+                text = "Reviews will appear here.",
+                color = Muted,
+                fontSize = 13.sp
+            )
+        } else {
+            reviews.forEach { review ->
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = Color.White
+                ) {
+                    Column(modifier = Modifier.padding(15.dp)) {
+
+                        Text(
+                            text = review.reviewerName,
+                            color = DeepForest,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = "★ ${review.rating} / 5",
+                            color = Gold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+
+                        Spacer(Modifier.height(6.dp))
+
+                        Text(
+                            text = review.comment,
+                            color = Muted,
+                            fontSize = 13.sp,
+                            lineHeight = 20.sp
+                        )
+
+                        review.createdAt?.let { timestamp ->
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                text = DateFormat.getDateInstance(
+                                    DateFormat.MEDIUM
+                                ).format(timestamp.toDate()),
+                                color = Muted,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+                }
             }
         }
     }

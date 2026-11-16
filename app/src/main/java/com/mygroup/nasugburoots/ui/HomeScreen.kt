@@ -34,10 +34,11 @@ import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
 import com.mygroup.nasugburoots.ui.theme.*
 import kotlinx.coroutines.launch
+import com.mygroup.nasugburoots.ui.auth.AccountProfile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(userProfile: AccountProfile? = null) {
 
     val spots = rememberSpots()
     val guides = rememberGuides()
@@ -262,6 +263,7 @@ fun HomeScreen() {
                             openSpot != null -> {
                                 DestinationDetailsScreen(
                                     spot = openSpot,
+                                    userProfile = userProfile,
                                     onBack = {
                                         selectedSpot = null
                                     },

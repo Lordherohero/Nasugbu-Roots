@@ -9,11 +9,17 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.mygroup.nasugburoots.data.UserRepository
 import com.mygroup.nasugburoots.ui.HomeScreen
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun NasugbuRootsAuthApp() {
+
+    var loggedInProfile by remember {
+        mutableStateOf<AccountProfile?>(null)
+    }
 
     var destination by remember {
         mutableStateOf(AuthDestination.LOGIN)
@@ -23,13 +29,8 @@ fun NasugbuRootsAuthApp() {
         mutableStateOf(AccountRole.TOURIST)
     }
 
-    // Temporary in-memory form data for future backend integration.
     var registrationForm by remember {
         mutableStateOf(RegistrationFormState())
-    }
-
-    var professionalForm by remember {
-        mutableStateOf(ProfessionalFormState())
     }
 
     val snackbarHostState = remember {
@@ -46,11 +47,50 @@ fun NasugbuRootsAuthApp() {
 
             AuthDestination.LOGIN -> {
                 LoginScreen(
-                    onLogin = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                "Form validated. Real login requires backend setup."
-                            )
+                    onLogin = { form ->
+                        UserRepository.login(
+                            email = form.email,
+                            password = form.password
+                        ) { result ->
+
+                            result.onSuccess { profile ->
+                                loggedInProfile = profile
+
+                                when (profile.status) {
+                                    AccountStatus.ACTIVE -> {
+                                        destination = AuthDestination.HOME
+                                    }
+
+                                    AccountStatus.PENDING_VERIFICATION -> {
+                                        destination = AuthDestination.PENDING_VERIFICATION
+                                    }
+
+                                    AccountStatus.REJECTED -> {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "Your application was rejected."
+                                            )
+                                        }
+                                    }
+
+                                    AccountStatus.SUSPENDED -> {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "Your account has been suspended."
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            result.onFailure { exception ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        exception.localizedMessage
+                                            ?: "Login failed. Please try again."
+                                    )
+                                }
+                            }
                         }
                     },
                     onRegister = {
@@ -63,7 +103,6 @@ fun NasugbuRootsAuthApp() {
                         destination = AuthDestination.HOME
                     }
                 )
-
             }
 
             AuthDestination.REGISTER -> {
@@ -86,18 +125,43 @@ fun NasugbuRootsAuthApp() {
                     onContinue = { role ->
                         selectedRole = role
 
-                        destination = when (role) {
-                            AccountRole.TOURIST ->
-                                AuthDestination.REGISTRATION_SUCCESS
+                        when (role) {
+                            AccountRole.TOURIST -> {
+                                UserRepository.registerTourist(
+                                    form = registrationForm
+                                ) { result ->
 
-                            AccountRole.LOCAL_GUIDE ->
-                                AuthDestination.GUIDE_REGISTRATION
+                                    result.onSuccess { profile ->
+                                        loggedInProfile = profile
+                                        destination = AuthDestination.REGISTRATION_SUCCESS
+                                    }
 
-                            AccountRole.SITE_OWNER ->
-                                AuthDestination.OWNER_REGISTRATION
+                                    result.onFailure { exception ->
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                exception.localizedMessage
+                                                    ?: "Registration failed."
+                                            )
+                                        }
+                                    }
+                                }
+                            }
 
-                            AccountRole.ADMIN ->
-                                AuthDestination.LOGIN
+                            AccountRole.LOCAL_GUIDE -> {
+                                destination = AuthDestination.GUIDE_REGISTRATION
+                            }
+
+                            AccountRole.SITE_OWNER -> {
+                                destination = AuthDestination.OWNER_REGISTRATION
+                            }
+
+                            AccountRole.ADMIN -> {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "Administrator registration is not available."
+                                    )
+                                }
+                            }
                         }
                     }
                 )
@@ -110,8 +174,25 @@ fun NasugbuRootsAuthApp() {
                         destination = AuthDestination.ROLE_SELECTION
                     },
                     onSubmit = { form ->
-                        professionalForm = form
-                        destination = AuthDestination.PENDING_VERIFICATION
+                        UserRepository.registerProfessional(
+                            registration = registrationForm,
+                            professional = form,
+                            role = AccountRole.LOCAL_GUIDE
+                        ) { result ->
+
+                            result.onSuccess {
+                                destination = AuthDestination.PENDING_VERIFICATION
+                            }
+
+                            result.onFailure { exception ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        exception.localizedMessage
+                                            ?: "Registration failed."
+                                    )
+                                }
+                            }
+                        }
                     }
                 )
             }
@@ -123,8 +204,25 @@ fun NasugbuRootsAuthApp() {
                         destination = AuthDestination.ROLE_SELECTION
                     },
                     onSubmit = { form ->
-                        professionalForm = form
-                        destination = AuthDestination.PENDING_VERIFICATION
+                        UserRepository.registerProfessional(
+                            registration = registrationForm,
+                            professional = form,
+                            role = AccountRole.SITE_OWNER
+                        ) { result ->
+
+                            result.onSuccess {
+                                destination = AuthDestination.PENDING_VERIFICATION
+                            }
+
+                            result.onFailure { exception ->
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        exception.localizedMessage
+                                            ?: "Registration failed."
+                                    )
+                                }
+                            }
+                        }
                     }
                 )
             }
@@ -137,7 +235,7 @@ fun NasugbuRootsAuthApp() {
                     onSendResetLink = { email ->
                         scope.launch {
                             snackbarHostState.showSnackbar(
-                                "Email validated. Password reset requires backend setup."
+                                "Password reset is not connected yet."
                             )
                         }
                     }
@@ -163,7 +261,7 @@ fun NasugbuRootsAuthApp() {
             }
 
             AuthDestination.HOME -> {
-                HomeScreen()
+                HomeScreen(userProfile = loggedInProfile)
             }
         }
 
