@@ -45,7 +45,7 @@ fun MyBookingsScreen(
     bookings: List<Booking>,
     spots: List<TouristSpot>,
     guides: List<Guide>,
-    onCancel: (Int) -> Unit
+    onCancel: (String) -> Unit
 ) {
     var selectedFilter by remember {
         mutableStateOf(VisitFilter.UPCOMING)
@@ -66,7 +66,6 @@ fun MyBookingsScreen(
                 onCancel(booking.bookingId)
             }
     }
-    // Completed means confirmed and scheduled before today.
     fun isCompleted(booking: Booking): Boolean {
         return booking.status == BookingStatus.CONFIRMED &&
                 booking.date.isNotBlank() &&
@@ -113,7 +112,6 @@ fun MyBookingsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Visit counts
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -254,7 +252,7 @@ private fun BookingCard(
     spots: List<TouristSpot>,
     guides: List<Guide>,
     isCompleted: Boolean,
-    onCancel: (Int) -> Unit
+    onCancel: (String) -> Unit
 ) {
     val spot = spots.find { it.placeId == booking.placeId }
     val spotName = spot?.placeName ?: "Unknown spot"

@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mygroup.nasugburoots.data.TEMP_TOURIST_ID
+import com.mygroup.nasugburoots.data.CurrentUser
 import com.mygroup.nasugburoots.data.formatDate
 import com.mygroup.nasugburoots.data.isGuideBooked
 import com.mygroup.nasugburoots.data.isSpotBooked
@@ -49,7 +49,6 @@ fun BookingFormScreen(
     spot: TouristSpot,
     guides: List<Guide>,
     existingBookings: List<Booking>,
-    nextId: Int,
     onBack: () -> Unit,
     onConfirm: (Booking) -> Unit
 ) {
@@ -175,9 +174,9 @@ fun BookingFormScreen(
         Button(
             onClick = {
                 val booking = Booking(
-                    bookingId = nextId,
+                    bookingId = "",
                     placeId = spot.placeId,
-                    touristId = TEMP_TOURIST_ID,
+                    touristId = CurrentUser.id,
                     guideId = if (guide != null) guide.guideId else null,
                     date = date,
                     hours = hours,

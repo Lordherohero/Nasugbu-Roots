@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.mygroup.nasugburoots.data.Repository
+import com.mygroup.nasugburoots.model.Booking
 import com.mygroup.nasugburoots.model.Guide
 import com.mygroup.nasugburoots.model.TouristSpot
 
@@ -37,4 +38,16 @@ fun rememberGuides(): List<Guide> {
     }
 
     return guides
+}
+
+@Composable
+fun rememberBookings(): List<Booking> {
+    var bookings by remember { mutableStateOf(emptyList<Booking>()) }
+
+    DisposableEffect(Unit) {
+        val registration = Repository.listenToBookings { bookings = it }
+        onDispose { registration.remove() }
+    }
+
+    return bookings
 }
