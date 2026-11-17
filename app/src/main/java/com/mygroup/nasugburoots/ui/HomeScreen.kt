@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.mygroup.nasugburoots.data.CurrentUser
 import com.mygroup.nasugburoots.data.Repository
+import com.mygroup.nasugburoots.data.spotReviews
 import com.mygroup.nasugburoots.model.BookingStatus
 import com.mygroup.nasugburoots.model.TouristSpot
 import com.mygroup.nasugburoots.ui.theme.*
@@ -39,7 +40,10 @@ import com.mygroup.nasugburoots.ui.auth.AccountProfile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(userProfile: AccountProfile? = null) {
+fun HomeScreen(
+    userProfile: AccountProfile? = null,
+    onLogout: () -> Unit = {}
+) {
 
     val spots = rememberSpots()
     val guides = rememberGuides()
@@ -166,6 +170,23 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
                         )
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                NavigationDrawerItem(
+                    label = { Text("Log out") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onLogout()
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    colors = NavigationDrawerItemDefaults.colors(
+                        unselectedTextColor = DeepForest
+                    )
+                )
             }
         }
     ) {
@@ -266,7 +287,7 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
                             openSpot != null -> {
                                 DestinationDetailsScreen(
                                     spot = openSpot,
-                                    reviews = reviews.filter { it.placeId == openSpot.placeId },
+                                    reviews = spotReviews(reviews, openSpot.placeId),
                                     onBack = {
                                         selectedSpot = null
                                     },
@@ -356,9 +377,10 @@ fun HomeScreen(userProfile: AccountProfile? = null) {
                                 guideName = guide?.name,
                                 onBack = { reviewingBooking = null },
                                 onSubmit = { spotReview, guideReview ->
-                                    Repository.addReview(spotReview)
+                                    val reviewerName = userProfile?.fullName ?: ""
+                                    Repository.addReview(spotReview.copy(reviewerName = reviewerName))
                                     if (guideReview != null) {
-                                        Repository.addReview(guideReview)
+                                        Repository.addReview(guideReview.copy(reviewerName = reviewerName))
                                     }
                                     reviewingBooking = null
                                 }

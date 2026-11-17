@@ -14,7 +14,6 @@ import com.mygroup.nasugburoots.ui.HomeScreen
 import kotlinx.coroutines.launch
 import com.mygroup.nasugburoots.data.CurrentUser
 
-
 @Composable
 fun NasugbuRootsAuthApp() {
 
@@ -68,6 +67,10 @@ fun NasugbuRootsAuthApp() {
                                     }
 
                                     AccountStatus.REJECTED -> {
+                                        UserRepository.signOut()
+                                        CurrentUser.reset()
+                                        loggedInProfile = null
+
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
                                                 "Your application was rejected."
@@ -76,6 +79,10 @@ fun NasugbuRootsAuthApp() {
                                     }
 
                                     AccountStatus.SUSPENDED -> {
+                                        UserRepository.signOut()
+                                        CurrentUser.reset()
+                                        loggedInProfile = null
+
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
                                                 "Your account has been suspended."
@@ -260,13 +267,25 @@ fun NasugbuRootsAuthApp() {
                 RegistrationResultScreen(
                     pending = true,
                     onContinue = {
+                        UserRepository.signOut()
+                        CurrentUser.reset()
+                        loggedInProfile = null
                         destination = AuthDestination.LOGIN
                     }
                 )
             }
 
             AuthDestination.HOME -> {
-                HomeScreen(userProfile = loggedInProfile)
+                HomeScreen(
+                    userProfile = loggedInProfile,
+                    onLogout = {
+                        UserRepository.signOut()
+                        CurrentUser.reset()
+                        loggedInProfile = null
+                        registrationForm = RegistrationFormState()
+                        destination = AuthDestination.LOGIN
+                    }
+                )
             }
         }
 

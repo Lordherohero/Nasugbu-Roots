@@ -47,6 +47,8 @@ fun ReviewsSection(reviews: List<Review>) {
             Spacer(modifier = Modifier.height(8.dp))
 
             reviews.forEach { review ->
+                val name = if (review.reviewerName.isBlank()) "Traveler" else review.reviewerName
+
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -55,6 +57,12 @@ fun ReviewsSection(reviews: List<Review>) {
                     color = Color.White
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = name,
+                            color = DeepForest,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                         Text(text = stars(review.rating), color = Gold)
                         Text(text = review.comment, color = DeepForest, fontSize = 14.sp)
                         Text(text = review.date, color = Muted, fontSize = 11.sp)
