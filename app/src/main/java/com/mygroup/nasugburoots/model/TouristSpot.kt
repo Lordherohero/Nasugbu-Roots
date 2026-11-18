@@ -12,7 +12,8 @@ data class TouristSpot(
     val longitude: Double = 0.0,
     val ownerId: Int = 0,
     var verified: Boolean = false,
-    var entryFee: Double = 0.0
+    var entryFee: Double = 0.0,
+    var locationAddress: String = ""
 ) : Searchable {
 
     init {
@@ -34,6 +35,7 @@ data class TouristSpot(
         println("Place Name: $placeName")
         println("Description: $description")
         println("Category: $category")
+        println("Location Address: $locationAddress")
         println("Allows Guides: $allowsGuides")
         println("Availability: $availability")
         println("Image Url: $imageUrl")

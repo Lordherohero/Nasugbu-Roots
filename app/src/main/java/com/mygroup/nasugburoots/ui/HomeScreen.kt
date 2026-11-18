@@ -554,20 +554,20 @@ private fun BrandTopBar(
 
             Box(
                 modifier = Modifier
-                    .size(38.dp)
+                    .size(42.dp)
                     .clip(
                         RoundedCornerShape(
                             13.dp, 13.dp, 13.dp, 4.dp
                         )
                     )
-                    .background(Forest),
+                    .background(Color.White),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Filled.Eco,
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = com.mygroup.nasugburoots.R.drawable.ic_app_logo),
                     contentDescription = "Nasugbu Roots logo",
-                    tint = Gold,
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier.fillMaxSize().padding(2.dp),
+                    contentScale = ContentScale.Fit
                 )
             }
 

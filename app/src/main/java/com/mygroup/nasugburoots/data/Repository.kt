@@ -23,22 +23,16 @@ object Repository {
         }
         seedStarted = true
 
-        db.collection("spots").limit(1).get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.isEmpty) {
-                    val batch = db.batch()
-                    sampleSpots.forEach { spot ->
-                        batch.set(db.collection("spots").document(spot.placeId.toString()), spot)
-                    }
-                    sampleGuides.forEach { guide ->
-                        batch.set(db.collection("guides").document(guide.guideId.toString()), guide)
-                    }
-                    batch.commit()
-                        .addOnSuccessListener { Log.d(TAG, "Sample spots and guides added") }
-                        .addOnFailureListener { Log.e(TAG, "Seeding failed", it) }
-                }
-            }
-            .addOnFailureListener { Log.e(TAG, "Could not check for existing spots", it) }
+        val batch = db.batch()
+        sampleSpots.forEach { spot ->
+            batch.set(db.collection("spots").document(spot.placeId.toString()), spot)
+        }
+        sampleGuides.forEach { guide ->
+            batch.set(db.collection("guides").document(guide.guideId.toString()), guide)
+        }
+        batch.commit()
+            .addOnSuccessListener { Log.d(TAG, "Sample spots and guides updated in Firestore") }
+            .addOnFailureListener { Log.e(TAG, "Seeding failed", it) }
     }
 
     fun listenToSpots(onChange: (List<TouristSpot>) -> Unit): ListenerRegistration {

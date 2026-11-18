@@ -278,7 +278,7 @@ fun DestinationDetailsScreen(
                             Spacer(Modifier.width(8.dp))
 
                             Text(
-                                "Destination coordinates",
+                                if (spot.locationAddress.isNotBlank()) spot.locationAddress else "Destination coordinates",
                                 color = DeepForest,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold
@@ -286,7 +286,7 @@ fun DestinationDetailsScreen(
                         }
 
                         Text(
-                            "${spot.latitude}, ${spot.longitude}",
+                            "Coordinates: ${spot.latitude}° N, ${spot.longitude}° E",
                             color = Muted,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(
