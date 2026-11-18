@@ -1,4 +1,4 @@
-open class AppUser(
+abstract class AppUser(
     private val userId: Int,
     private var userName: String,
     protected var email: String,
@@ -56,11 +56,14 @@ open class AppUser(
         println("Verified updated to: $verified")
     }
 
+    abstract fun roleDescription(): String
+
     open fun displayUser() {
         println("User ID: $userId")
         println("User Name: $userName")
         println("Email: $email")
         println("Role: ${role.label}")
+        println("Responsibilities: ${roleDescription()}")
         println("Bio: $bio")
         println("Verified: $verified")
     }
@@ -72,7 +75,11 @@ class Tourist(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, Role.TOURIST, bio, verified)
+) : AppUser(userId, userName, email, Role.TOURIST, bio, verified) {
+    override fun roleDescription(): String {
+        return "Browses tourist spots, books visits, and writes reviews"
+    }
+}
 
 class Guide(
     userId: Int,
@@ -101,6 +108,10 @@ class Guide(
         println("Rate per hour updated to: $ratePerHour")
     }
 
+    override fun roleDescription(): String {
+        return "Offers guided tours and confirms booking requests"
+    }
+
     override fun displayUser() {
         super.displayUser()
         println("Languages: $languages")
@@ -114,7 +125,11 @@ class SpotOwner(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, Role.OWNER, bio, verified)
+) : AppUser(userId, userName, email, Role.OWNER, bio, verified) {
+    override fun roleDescription(): String {
+        return "Lists and manages tourist spots"
+    }
+}
 
 class Manager(
     userId: Int,
@@ -122,4 +137,8 @@ class Manager(
     email: String,
     bio: String = "",
     verified: Boolean = false
-) : AppUser(userId, userName, email, Role.MANAGER, bio, verified)
+) : AppUser(userId, userName, email, Role.MANAGER, bio, verified) {
+    override fun roleDescription(): String {
+        return "Verifies tourist spots and guide accounts"
+    }
+}

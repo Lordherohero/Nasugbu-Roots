@@ -14,6 +14,7 @@ fun main() {
             currentUserId = user.getUserId()
             println()
             println("Welcome, ${user.getUserName()}")
+            println(user.roleDescription())
             println()
 
             val role = user.getUserRole()
