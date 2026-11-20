@@ -75,14 +75,47 @@ object Repository {
                 Log.e(TAG, "Bookings listener failed", error)
                 return@addSnapshotListener
             }
-            try {
-                val bookings = snapshot.documents.mapNotNull { doc ->
+            val bookings = snapshot.documents.mapNotNull { doc ->
+                try {
                     doc.toObject(Booking::class.java)?.copy(bookingId = doc.id)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Standard toObject failed for booking ${doc.id}, trying fallback parse", e)
+                    try {
+                        val placeId = (doc.getLong("placeId") ?: 0L).toInt()
+                        val touristId = doc.getString("touristId") ?: ""
+                        val guideId = doc.getLong("guideId")?.toInt()
+                        val date = doc.getString("date") ?: ""
+                        val hours = (doc.getLong("hours") ?: 1L).toInt()
+                        val guideRate = doc.getDouble("guideRate") ?: 0.0
+                        val placeFee = doc.getDouble("placeFee") ?: 0.0
+                        val statusStr = doc.getString("status") ?: "PENDING"
+                        val status = try {
+                            BookingStatus.valueOf(statusStr.uppercase())
+                        } catch (_: Exception) {
+                            when (statusStr.lowercase()) {
+                                "confirmed" -> BookingStatus.CONFIRMED
+                                "cancelled" -> BookingStatus.CANCELLED
+                                else -> BookingStatus.PENDING
+                            }
+                        }
+                        Booking(
+                            bookingId = doc.id,
+                            placeId = placeId,
+                            touristId = touristId,
+                            guideId = guideId,
+                            date = date,
+                            hours = if (hours > 0) hours else 1,
+                            guideRate = if (guideRate >= 0.0) guideRate else 0.0,
+                            placeFee = if (placeFee >= 0.0) placeFee else 0.0,
+                            status = status
+                        )
+                    } catch (fallbackErr: Exception) {
+                        Log.e(TAG, "Manual parse failed for booking ${doc.id}", fallbackErr)
+                        null
+                    }
                 }
-                onChange(bookings.sortedBy { it.date })
-            } catch (e: Exception) {
-                Log.e(TAG, "Could not read bookings", e)
             }
+            onChange(bookings.sortedBy { it.date })
         }
     }
 

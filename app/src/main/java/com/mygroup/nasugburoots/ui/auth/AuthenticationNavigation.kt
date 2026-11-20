@@ -17,6 +17,13 @@ import com.mygroup.nasugburoots.data.CurrentUser
 @Composable
 fun NasugbuRootsAuthApp() {
 
+    LaunchedEffect(Unit) {
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            CurrentUser.id = currentUser.uid
+        }
+    }
+
     var loggedInProfile by remember {
         mutableStateOf<AccountProfile?>(null)
     }

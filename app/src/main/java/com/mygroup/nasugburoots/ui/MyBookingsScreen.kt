@@ -102,6 +102,7 @@ fun MyBookingsScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         Text(
             text = "My Visits",
             style = MaterialTheme.typography.headlineMedium,
